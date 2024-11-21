@@ -1,0 +1,12 @@
+[package]
+name = "{{ cookiecutter.__hyphenated }}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.*"
+clap = { version = "4.*", features = ["color", "derive"] }
+{% if cookiecutter.with_tracing %}
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+{% endif %}

@@ -1,0 +1,10 @@
+alias r := release
+alias d := debug
+
+import? '.local.justfile'
+
+release:
+    cargo build -r
+
+debug:
+    cargo build -d

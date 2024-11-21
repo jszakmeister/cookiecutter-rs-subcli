@@ -1,0 +1,8 @@
+{
+  "project_name": "subcli",
+  "with_tracing": false,
+  "__hyphenated": "{{ cookiecutter.project_name.lower() | strip_prefix('rs-', 'rs_') | replace(' ', '-') }}",
+  "__underscored": "{{ cookiecutter.__hyphenated.replace('-', '_') }}",
+  "_jinja2_env_vars": {"lstrip_blocks": true, "trim_blocks": true},
+  "_extensions": ["local_extensions.strip_prefix"]
+}
