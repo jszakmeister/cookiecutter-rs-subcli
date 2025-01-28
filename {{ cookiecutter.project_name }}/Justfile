@@ -4,7 +4,7 @@ alias d := debug
 import? '.local.justfile'
 
 release:
-    cargo build -r
+    cargo build --profile release
 
 debug:
-    cargo build -d
+    cargo build --profile dev
