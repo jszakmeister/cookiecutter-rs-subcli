@@ -1,13 +1,19 @@
 use anyhow::{anyhow, Result};
+{% if cookiecutter.with_subcommands %}
 use clap::{Args, CommandFactory, Parser, Subcommand};
+{% else %}
+use clap::Parser;
+{% endif %}
 use clap::builder::styling::{Color, AnsiColor, Ansi256Color, Style};
 {% if cookiecutter.with_tracing %}
 use tracing;
 use tracing_subscriber::fmt;
-use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::filter::LevelFilter;
+use tracing_subscriber::layer::{Layer, SubscriberExt};
 use tracing_subscriber::util::SubscriberInitExt;
 {% endif %}
 
+{% if cookiecutter.with_subcommands %}
 // Create structs for each command.
 #[derive(Args, Debug)]
 struct ParseCmd {
@@ -43,6 +49,11 @@ enum Commands {
 #[command(author, version, about, long_about = None, styles=get_styles())]
 #[command(propagate_version = true)]
 struct TopLevelCmd {
+    {% if cookiecutter.with_tracing %}
+    #[clap(long, global=true, help="Show debug logging")]
+    debug: bool,
+
+    {% endif  %}
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -50,6 +61,9 @@ struct TopLevelCmd {
 impl TopLevelCmd {
     fn execute(self) -> Result<(), anyhow::Error> {
         let TopLevelCmd {
+            {% if cookiecutter.with_tracing %}
+            debug: _,
+            {% endif %}
             command,
         } = self;
 
@@ -64,6 +78,35 @@ impl TopLevelCmd {
     }
 }
 
+{% else %}
+#[derive(Parser)]
+#[command(author, version, about, long_about = None, styles=get_styles())]
+#[command(propagate_version = true)]
+struct Cli {
+    {% if cookiecutter.with_tracing %}
+    #[clap(long, help="Show debug logging")]
+    debug: bool,
+
+    {% endif  %}
+    #[arg(help="Path to parse")]
+    path: std::path::PathBuf,
+}
+
+impl Cli {
+    fn execute(&self) -> Result<()> {
+        println!("path to parse: {:?}", self.path);
+
+        {% if cookiecutter.with_tracing %}
+        tracing::info!("message");
+
+        {% endif  %}
+        println!("do work here!");
+
+        Ok(())
+    }
+}
+
+{% endif %}
 fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
         .usage(
@@ -99,11 +142,24 @@ fn get_styles() -> clap::builder::Styles {
 }
 
 fn main() {
+    {% if cookiecutter.with_subcommands %}
     let cli = TopLevelCmd::parse();
+    {% else %}
+    let cli = Cli::parse();
+    {% endif %}
 
     {% if cookiecutter.with_tracing %}
+    let fmt_layer = fmt::layer()
+        .with_filter(
+            if cli.debug {
+                LevelFilter::DEBUG
+            } else {
+                LevelFilter::OFF
+            }
+        );
+
     tracing_subscriber::registry()
-        .with(fmt::layer())
+        .with(fmt_layer)
         .init();
 
     {% endif %}
