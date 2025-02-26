@@ -1,5 +1,6 @@
 alias r := release
 alias d := debug
+alias t := test
 
 import? '.local.justfile'
 
@@ -8,3 +9,6 @@ release:
 
 debug:
     cargo build --profile dev
+
+test *ARGS:
+    cargo test {{ARGS}}
