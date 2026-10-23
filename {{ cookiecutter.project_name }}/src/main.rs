@@ -59,7 +59,7 @@ struct TopLevelCmd {
 }
 
 impl TopLevelCmd {
-    fn execute(self) -> Result<(), anyhow::Error> {
+    fn execute(&self) -> Result<(), anyhow::Error> {
         let TopLevelCmd {
             {% if cookiecutter.with_tracing %}
             debug: _,
