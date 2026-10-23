@@ -11,4 +11,4 @@ debug:
     cargo build --profile dev
 
 test *ARGS:
-    cargo test {{ARGS}}
+    cargo test {{"{{ARGS}}"}}
